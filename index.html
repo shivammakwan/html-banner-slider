@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advertisement Banner</title>
+    <style>
+      .banner-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+      }
+
+      .banner-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .banner-slide img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .banner-indicators {
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .banner-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #bbb;
+        margin: 0 5px;
+        cursor: pointer;
+      }
+
+      .banner-indicator.active {
+        background-color: #333;
+      }
+
+      .banner-swipe-buttons {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        z-index: 1;
+      }
+
+      .banner-swipe-button {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        padding: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease-in-out;
+      }
+
+      .banner-swipe-button:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="banner-container">
+      <div class="banner-slide">
+        <img
+          src="https://images.unsplash.com/photo-1666919643134-d97687c1826c"
+          alt="Image 1"
+        />
+      </div>
+      <div class="banner-slide">
+        <img
+          src="https://images.unsplash.com/photo-1666919643134-d97687c1826c"
+          alt="Image 2"
+        />
+      </div>
+      <div class="banner-slide">
+        <img
+          src="https://images.unsplash.com/photo-1666919643134-d97687c1826c"
+          alt="Image 3"
+        />
+      </div>
+
+      <div class="banner-indicators">
+        <div class="banner-indicator active" data-slide-index="0"></div>
+        <div class="banner-indicator" data-slide-index="1"></div>
+        <div class="banner-indicator" data-slide-index="2"></div>
+      </div>
+
+      <div class="banner-swipe-buttons">
+        <div class="banner-swipe-button" id="prev">Prev</div>
+        <div class="banner-swipe-button" id="next">Next</div>
+      </div>
+    </div>
+
+    <script>
+      const slides = document.querySelectorAll('.banner-slide');
+      const indicators = document.querySelectorAll('.banner-indicator');
+      const prevButton = document.getElementById('prev');
+      const nextButton = document.getElementById('next');
+
+      let currentIndex = 0;
+      let intervalId;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.style.transform = `translateX(${100 * (i - index)}%)`;
+        });
+
+        indicators.forEach((indicator, i) => {
+          if (i === index) {
+            indicator.classList.add('active');
+          } else {
+            indicator.classList.remove('active');
+          }
+        });
+      }
+
+      function goToSlide(index) {
+        currentIndex = index;
+        showSlide(currentIndex);
+      }
+
+      function goToPrevSlide() {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        showSlide(currentIndex);
+      }
+
+      function goToNextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        showSlide(currentIndex);
+      }
+
+      prevButton.addEventListener('click', goToPrevSlide);
+      nextButton.addEventListener('click', goToNextSlide);
+
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      function handleSwipe() {
+        if (touchEndX < touchStartX) {
+          goToNextSlide();
+        } else if (touchEndX > touchStartX) {
+          goToPrevSlide();
+        }
+      }
+
+      document.addEventListener('touchstart', function (event) {
+        touchStartX = event.touches[0].clientX;
+      });
+
+      document.addEventListener('touchend', function (event) {
+        touchEndX = event.changedTouches[0].clientX;
+        handleSwipe();
+      });
+
+      function startAutoPlay() {
+        intervalId = setInterval(goToNextSlide, 3000); // Change slide every 3 seconds (adjust as needed)
+      }
+
+      function stopAutoPlay() {
+        clearInterval(intervalId);
+      }
+
+      startAutoPlay();
+
+      // Pause autoplay when hovering over the banner
+      const bannerContainer = document.querySelector('.banner-container');
+      bannerContainer.addEventListener('mouseenter', stopAutoPlay);
+      bannerContainer.addEventListener('mouseleave', startAutoPlay);
+
+      // Handle indicator click
+      indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+          goToSlide(index);
+        });
+      });
+    </script>
+  </body>
+</html>
